@@ -42,8 +42,8 @@ namespace NZWalks.Api.Controllers
         //    return Ok(regions);
         //}
 
-        // GET ALL REGIONS
-        // GET: https://localhost:portnumber/api/regions
+        //GET ALL REGIONS
+        //GET: https://localhost:portnumber/api/regions
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -93,9 +93,100 @@ namespace NZWalks.Api.Controllers
         DTO relate with the client from API if the client want to add new resource information it is recieved as a Dto then to Domain Model and then we send the Domain Model through entity framework to the database 
         Advantages of DTOs
         *Seperation of concerns *Performance *Security *Versoning
-        *Change bMethod to Use Dto in model folder cretae a new folder DTO with a class RegionDto.cs*/
+        *Change Method to Use Dto in model folder cretae a new folder DTO with a class RegionDto.cs*/
+        //Post To Create New Region
+        //Post:https://localhost:portnumber/api/regions
+        [HttpPost]
+        public IActionResult Create([FromBody] AddRegionRequestDto  addRegionRequestDto)
+        {
+            //Map or Convert DTO to Domain Model
+            var regionDomainModel = new Region
+            {
+                Code = addRegionRequestDto.Code,
+                Name = addRegionRequestDto.Name,
+                RegionImageUrl = addRegionRequestDto.RegionImageUrl,
+            };
 
+            //Use Domain Model to Create Region
+            dbContext.Regions.Add(regionDomainModel);
+            dbContext.SaveChanges();
+            //Map Domain Model Back To DTO
+            var regionDto = new RegionDto
+            {
+                Code = regionDomainModel.Code,
+                Name = regionDomainModel.Name,
+                RegionImageUrl = regionDomainModel.RegionImageUrl,
+            };
+            return CreatedAtAction(nameof(GetById), new {id = regionDto.Id}, regionDto);
+        }
+
+        //Update region
+        //Put:https:localhost:portnumber/api/regions/{id}
+        [HttpPut]
+        [Route("{id:Guid}")]
+        public IActionResult Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+        {
+            // Check if region exists
+            var regionDomainModel = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+
+            // If region does not exist, return NotFound
+            if (regionDomainModel == null)
+            {
+                return NotFound();
+            }
+
+            // Map DTO to Domain Model
+            // Assuming that updateRegionRequestDto.Id is not allowed to change
+            regionDomainModel.Code = updateRegionRequestDto.Code;
+            regionDomainModel.Name = updateRegionRequestDto.Name;
+            regionDomainModel.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
+
+            // Save changes to the database
+            dbContext.SaveChanges();
+
+            // Convert Domain Model to DTO
+            var regionDto = new RegionDto
+            {
+                Id = regionDomainModel.Id,
+                Name = regionDomainModel.Name,
+                Code = regionDomainModel.Code,
+                RegionImageUrl = regionDomainModel.RegionImageUrl,
+            };
+
+            return Ok(regionDto);
+        }
+
+        //Delete Region
+        //Delete:https://localhost:portnumber/api/regions/{id}
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public IActionResult Delete([FromRoute] Guid id)
+        {
+            //find region in the database
+            var regionDomainModel = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+
+            // if region doesnot exist return not found
+            if (regionDomainModel == null)
+            {
+                return NotFound();
+            }
+
+            //Delete Region from the database
+            dbContext.Regions.Remove(regionDomainModel);
+            dbContext.SaveChanges();
+            //return deleted Region back
+            //map DomainModel to DTO
+            var regionDto = new RegionDto
+            {
+                Id = regionDomainModel.Id,
+                Code = regionDomainModel.Code,
+                Name = regionDomainModel.Name,
+                RegionImageUrl = regionDomainModel.RegionImageUrl,
+            };
+            //return the deleted region
+            return Ok(regionDto);
         }
     }
+}
 
 
