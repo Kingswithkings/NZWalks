@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NZWalks.Api.Data;
 using NZWalks.Api.Models;
 using NZWalks.Api.Models.DTO;
+using NZWalks.Api.Repository;
 
 namespace NZWalks.Api.Controllers
 {
@@ -230,7 +231,7 @@ namespace NZWalks.Api.Controllers
         //Put:https:localhost:portnumber/api/regions/{id}
         [HttpPut]
         [Route("{id:Guid}")]
-        public async Task <IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
             // Check if region exists
             var regionDomainModel = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
@@ -261,6 +262,55 @@ namespace NZWalks.Api.Controllers
 
             return Ok(regionDto);
         }
+
+        //For Repository pattern
+        //Update region
+        //Put:https:localhost:portnumber/api/regions/{id}
+    //    [HttpPut]
+    //    [Route("{id:Guid}")]
+    //    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+    //    {
+    //        //Map DTO to Domain Model
+    //        var regionDomainModel = new Region
+    //        {
+    //            var regionDomainModel = new Region
+    //            {
+    //                Code = updateRegionRequestDto.Code,
+    //                Name = updateRegionRequestDto.Name,
+    //                RegionImageUrl = updateRegionRequestDto.RegionImageUrl,
+    //            }
+    //        };
+
+    //        // Check if region exists
+    //         regionDomainModel = await RegionRepository.UpdateAsync(id, regionDomainModel);
+
+    //        if (regionDomainModel == null)
+    //        {
+    //            return NotFound();
+    //        }
+
+    //        // If region does not exist, return NotFound
+    //        if (regionDomainModel == null)
+    //        {
+    //            return NotFound();
+    //        }
+    //        // Map DTO to Domain Model
+    //        regionDomainModel.Code = updateRegionRequestDto.Code;
+    //        regionDomainModel.Name = updateRegionRequestDto.Name;
+    //        regionDomainModel.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
+    //        await dbContext.SaveChangesAsync();
+
+    //        //Convert Domain Model to DTO
+    //        var regionDto = new RegionDto
+    //        {
+    //            Id = regionDomainModel.Id,
+    //            Code = regionDomainModel.Code,
+    //            Name = regionDomainModel.Name,
+    //            RegionImageUrl = regionDomainModel.RegionImageUrl,
+    //        };
+    //        return Ok (regionDto);
+    //    }
+    //}
 
 
         //Delete Region
