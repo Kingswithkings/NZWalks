@@ -2,7 +2,7 @@
 using NZWalks.Api.Data;
 using NZWalks.Api.Models;
 
-namespace NZWalks.Api.Repository
+namespace NZWalks.Api.Repositories
 {
     public class SQLRegionRepository : IRegionRepository
     {
@@ -13,16 +13,6 @@ namespace NZWalks.Api.Repository
             this.dbContext = dbContext;
         }
 
-        public async Task<List<Region>> GetAllAsync()
-        {
-            return await dbContext.Regions.ToListAsync();
-        }
-
-        public async Task<Region> GetById(Guid id)
-        {
-            return await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
-        }
-
         public async Task<Region> CreateAsync(Region region)
         {
             await dbContext.Regions.AddAsync(region);
@@ -30,9 +20,24 @@ namespace NZWalks.Api.Repository
             return region;
         }
 
-        public async Task<Region?> UpdateAsync(Guid id, Region region)
+        public async Task<List<Region>> GetAllAsync()
         {
-            var existingRegion = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
+            return await dbContext.Regions.ToListAsync();
+        }
+
+        public async Task<Region?> GetByIdAsync(Guid id)
+        {
+            return await dbContext.Regions.FirstOrDefaultAsync(x=> x.Id == id);
+        }
+
+        public Task<Region?> GetById(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Region> UpdateAsync(Guid id, Region region)
+        {
+           var existingRegion = await dbContext.Regions.FirstOrDefaultAsync(x=> x.Id == id);
             if (existingRegion == null)
             {
                 return null;
@@ -40,30 +45,30 @@ namespace NZWalks.Api.Repository
             existingRegion.Code = region.Code;
             existingRegion.Name = region.Name;
             existingRegion.RegionImageUrl = region.RegionImageUrl;
+
             await dbContext.SaveChangesAsync();
             return existingRegion;
         }
 
         public async Task<Region?> DeleteAsync(Guid id)
         {
+            // Check if the region with the specified id exists
             var existingRegion = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
+
+            // If the region does not exist, return null
             if (existingRegion == null)
             {
                 return null;
             }
+
+            // Remove the region from the database
             dbContext.Regions.Remove(existingRegion);
+
+            // Save changes to the database
             await dbContext.SaveChangesAsync();
+
+            // Return the deleted region
             return existingRegion;
-        }
-
-        public Task<Region?> GetByIdAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Region?> UpdateAsync(Region region)
-        {
-            throw new NotImplementedException();
         }
     }
 }
